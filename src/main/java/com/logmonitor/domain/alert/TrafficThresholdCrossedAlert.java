@@ -1,4 +1,4 @@
-package com.logmonitor.domain;
+package com.logmonitor.domain.alert;
 
 import java.util.Date;
 
