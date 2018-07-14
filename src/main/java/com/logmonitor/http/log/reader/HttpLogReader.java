@@ -5,8 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import com.logmonitor.http.log.LogLine;
-import com.logmonitor.http.log.utils.LogParser;
+import com.logmonitor.http.log.HttpLog;
+import com.logmonitor.http.log.utils.HttpLogParser;
 
 public class HttpLogReader {
 
@@ -58,7 +58,7 @@ public class HttpLogReader {
 				Thread.sleep(1000L);
 			} else {
 				// TODO not implemented 
-				LogLine logLine = LogParser.parse(line);
+				HttpLog logLine = HttpLogParser.parse(line);
 			}
 
 			currentTimeMillis = System.currentTimeMillis();

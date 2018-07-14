@@ -2,23 +2,28 @@ package com.logmonitor.http.log;
 
 import java.time.LocalDateTime;
 
-public class LogLine {
+/**
+ * 
+ * @author Marcus Carvalho
+ *
+ */
+public class HttpLog {
 
-	private String client;
+	private String originAddress;
 	private String[] proxies;
-	private LocalDateTime dateTime;
+	private LocalDateTime requestDateTime;
 	private String httpMethod;
 	private String url;
 	private String protocol;
 	private int responseStatusCode;
 	private float responseTimeInSeconds;
 
-	public String getClient() {
-		return client;
+	public String getOriginAddress() {
+		return originAddress;
 	}
 
-	public void setClient(String client) {
-		this.client = client;
+	public void setOriginAddress(String originAddress) {
+		this.originAddress = originAddress;
 	}
 
 	public String[] getProxies() {
@@ -29,12 +34,12 @@ public class LogLine {
 		this.proxies = proxies;
 	}
 
-	public LocalDateTime getDateTime() {
-		return dateTime;
+	public LocalDateTime getRequestDateTime() {
+		return requestDateTime;
 	}
 
-	public void setDateTime(LocalDateTime dateTime) {
-		this.dateTime = dateTime;
+	public void setRequestDateTime(LocalDateTime requestDateTime) {
+		this.requestDateTime = requestDateTime;
 	}
 
 	public String getHttpMethod() {

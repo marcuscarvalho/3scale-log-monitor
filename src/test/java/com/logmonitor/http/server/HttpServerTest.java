@@ -29,19 +29,19 @@ public class HttpServerTest {
 		for (int i = 1; i <= 20; i++) {
 			out.println(getProxiedRequest);
 			out.flush();
-			Thread.sleep(10L);
+			Thread.sleep(1000L);
 		}
 
 		for (int i = 1; i <= 10; i++) {
 			out.println(postSimpleRequest);
 			out.flush();
-			Thread.sleep(1L);
+			Thread.sleep(1000L);
 		}
 
 		for (int i = 1; i <= 15; i++) {
 			out.println(getProxiedRequest);
 			out.flush();
-			Thread.sleep(100L);
+			Thread.sleep(1000L);
 		}
 		out.close();
 		
