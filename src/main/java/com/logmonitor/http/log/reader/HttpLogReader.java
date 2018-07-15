@@ -20,7 +20,7 @@ public class HttpLogReader {
 	
 	private final long logReaderDelay = 10000L; // 10 seconds
 
-	public void readFile(String filePath, int trafficThreshold) throws InterruptedException, IOException {
+	public void readFile(String filePath, int trafficThreshold) throws Exception {
 
 		if (filePath == null)
 			throw new IllegalArgumentException("file path cannot be null.");
@@ -85,7 +85,12 @@ public class HttpLogReader {
 		}
 
 		if (shutdown) {
-			reader.close();
+			try {
+				reader.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
