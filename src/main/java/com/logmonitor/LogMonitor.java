@@ -12,8 +12,8 @@ public class LogMonitor {
 	public static void main(String[] args) throws Exception {
 		HttpLogReader httpLogReader = new HttpLogReader();
 		
-		String filePath = null;
-		int trafficThreshold = 0;
+		String filePath;
+		int trafficThreshold;
 
 		try {
 			filePath = args[0];
