@@ -49,7 +49,7 @@ public class HttpLogParser {
 		    httpLog.setUrl(url);
 		    httpLog.setProtocol(protocol);
 		    httpLog.setResponseStatusCode(Integer.parseInt(responseStatusCode)); // TODO need to check null value
-		    httpLog.setResponseTimeInSeconds(Integer.parseInt(responseTimeInSeconds)); // TODO need to check null value
+		    httpLog.setResponseTimeInSeconds(Float.parseFloat(responseTimeInSeconds)); // TODO need to check null value
 		}
 		
 		return httpLog;

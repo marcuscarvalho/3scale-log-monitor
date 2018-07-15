@@ -91,4 +91,11 @@ public class Stats {
 		this.badLines = badLines;
 	}
 
+	@Override
+	public String toString() {
+		return "Stats [timestamp=" + timestamp + ", messageType=" + messageType + ", get=" + get + ", post=" + post
+				+ ", hits=" + hits + ", forwardedHits=" + forwardedHits + ", mostUsedProxy=" + mostUsedProxy
+				+ ", mostUsedProxyHits=" + mostUsedProxyHits + ", p95=" + p95 + ", badLines=" + badLines + "]";
+	}
+
 }

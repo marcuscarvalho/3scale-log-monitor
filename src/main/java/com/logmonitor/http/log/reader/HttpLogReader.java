@@ -4,20 +4,26 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.logmonitor.domain.Stats;
 import com.logmonitor.http.log.HttpLog;
 import com.logmonitor.http.log.utils.HttpLogParser;
 
+/**
+ * 
+ * @author Marcus Carvalho
+ *
+ */
 public class HttpLogReader {
-
+	
 	private final long logReaderDelay = 10000L; // 10 seconds
 
-	public void readFle(String filePath, Integer trafficThreshold) throws InterruptedException, IOException {
+	public void readFile(String filePath, int trafficThreshold) throws InterruptedException, IOException {
 
 		if (filePath == null)
 			throw new IllegalArgumentException("file path cannot be null.");
-		if (trafficThreshold == null)
-			throw new IllegalArgumentException("traffic Threshold cannot be null.");
 
 		File file = new File(filePath);
 		RandomAccessFile reader = null;
@@ -39,11 +45,25 @@ public class HttpLogReader {
 		long currentTimeMillis = System.currentTimeMillis();
 		long previousTimeMillis = currentTimeMillis;
 
+		List<HttpLog> logs = new ArrayList<>();
+		
 		while (!shutdown) {
 			// verify if reader delay time has been passed
 			if ((currentTimeMillis - previousTimeMillis) >= logReaderDelay) {
 				System.out.println(logReaderDelay / 1000 + " seconds have passed.");
 				previousTimeMillis = currentTimeMillis;
+				
+				Stats stats = new Stats();
+				long getHits = logs.stream().filter(s -> s.getHttpMethod().equals("GET")).count();
+				long postHits = logs.stream().filter(s -> s.getHttpMethod().equals("POST")).count();
+
+				stats.setGet((int) getHits);
+				stats.setPost((int) postHits);
+				stats.setHits((int) (getHits + postHits));
+				
+				System.out.println(stats);
+				
+				logs = new ArrayList<>();
 			}
 
 			String line = null;
@@ -57,8 +77,8 @@ public class HttpLogReader {
 			if (line == null) {
 				Thread.sleep(1000L);
 			} else {
-				// TODO not implemented 
-				HttpLog logLine = HttpLogParser.parse(line);
+				HttpLog httpLog = HttpLogParser.parse(line);
+				logs.add(httpLog);
 			}
 
 			currentTimeMillis = System.currentTimeMillis();
