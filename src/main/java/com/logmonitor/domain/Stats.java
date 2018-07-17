@@ -2,17 +2,24 @@ package com.logmonitor.domain;
 
 import java.util.Date;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Stats {
 
 	private Date timestamp;
+	@SerializedName("message_type")
 	private final String messageType = "stats";
 	private int get;
 	private int post;
 	private int hits;
+	@SerializedName("forwarded_hits")
 	private int forwardedHits;
+	@SerializedName("most_used_proxy")
 	private String mostUsedProxy;
+	@SerializedName("most_used_proxy_hits")
 	private int mostUsedProxyHits;
 	private float p95;
+	@SerializedName("bad_lines")
 	private int badLines;
 
 	public Date getTimestamp() {
@@ -27,6 +34,10 @@ public class Stats {
 		return messageType;
 	}
 
+	/**
+	 * The number of GET method request hits
+	 * @return
+	 */
 	public int getGet() {
 		return get;
 	}
@@ -35,6 +46,10 @@ public class Stats {
 		this.get = get;
 	}
 
+	/**
+	 * The number of POST method request hits
+	 * @return
+	 */
 	public int getPost() {
 		return post;
 	}
@@ -43,6 +58,10 @@ public class Stats {
 		this.post = post;
 	}
 
+	/**
+	 * The total number of HTTP request hits
+	 * @return
+	 */
 	public int getHits() {
 		return hits;
 	}
@@ -51,6 +70,10 @@ public class Stats {
 		this.hits = hits;
 	}
 
+	/**
+	 * The number of requests that have been proxied
+	 * @return
+	 */
 	public int getForwardedHits() {
 		return forwardedHits;
 	}
@@ -59,6 +82,10 @@ public class Stats {
 		this.forwardedHits = forwardedHits;
 	}
 
+	/**
+	 * The proxy that forwarded most requests
+	 * @return
+	 */
 	public String getMostUsedProxy() {
 		return mostUsedProxy;
 	}
@@ -67,6 +94,10 @@ public class Stats {
 		this.mostUsedProxy = mostUsedProxy;
 	}
 
+	/**
+	 * The number of forwarded requests
+	 * @return
+	 */
 	public int getMostUsedProxyHits() {
 		return mostUsedProxyHits;
 	}
@@ -75,6 +106,10 @@ public class Stats {
 		this.mostUsedProxyHits = mostUsedProxyHits;
 	}
 
+	/**
+	 * The 95 percentile request time
+	 * @return
+	 */
 	public float getP95() {
 		return p95;
 	}
@@ -83,6 +118,10 @@ public class Stats {
 		this.p95 = p95;
 	}
 
+	/**
+	 * The number of non-conformant log lines
+	 * @return
+	 */
 	public int getBadLines() {
 		return badLines;
 	}
