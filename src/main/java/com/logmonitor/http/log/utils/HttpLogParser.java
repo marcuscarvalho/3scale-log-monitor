@@ -2,10 +2,12 @@ package com.logmonitor.http.log.utils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.logmonitor.http.log.HttpLog;
+import com.logmonitor.http.log.exception.LogParseException;
 
 public class HttpLogParser {
 	
@@ -16,8 +18,9 @@ public class HttpLogParser {
 	 * 
 	 * @param logLine
 	 * @return HttpLog Log line parsed to an object of HttpLog
+	 * @throws LogParseException 
 	 */
-	public static HttpLog parse(String logLine) {
+	public static HttpLog parse(String logLine) throws LogParseException {
 		
 		HttpLog httpLog = new HttpLog();
 		
@@ -48,14 +51,26 @@ public class HttpLogParser {
 		    httpLog.setHttpMethod(method);
 		    httpLog.setUrl(url);
 		    httpLog.setProtocol(protocol);
-		    httpLog.setResponseStatusCode(Integer.parseInt(responseStatusCode)); // TODO need to check null value
-		    httpLog.setResponseTimeInSeconds(Float.parseFloat(responseTimeInSeconds)); // TODO need to check null value
+		    
+		    try {
+		    	int statusCode = Integer.parseInt(responseStatusCode);
+		    	httpLog.setResponseStatusCode(statusCode);
+		    } catch (NumberFormatException e) {
+				throw new LogParseException("Http Response Status Code is not an Integer value or is empty");
+			}
+		    
+		    try {
+		    	float responseTime = Float.parseFloat(responseTimeInSeconds);
+		    	httpLog.setResponseTimeInSeconds(responseTime);
+		    } catch (NumberFormatException e) {
+				throw new LogParseException("Http Response Time is not an Float value or is empty");
+			}
 		}
 		
 		return httpLog;
 	}
 
-	protected static String parseOriginAddress(String addresses) {
+	protected static String parseOriginAddress(String addresses) throws LogParseException {
 		
 		String originAddress = null;
 		
@@ -68,10 +83,14 @@ public class HttpLogParser {
 			originAddress = matcher.group();
 		}
 		
+		if (originAddress == null) {
+			throw new LogParseException("IP addresses in a bad format or is empty");
+		}
+		
 		return originAddress;
 	}
 
-	protected static String[] parseProxies(String addresses) {
+	protected static String[] parseProxies(String addresses) throws LogParseException {
 		
 		String[] proxies = null;
 		
@@ -83,6 +102,10 @@ public class HttpLogParser {
 		int count = 0;
 		while (matcher.find()) {
 			count++;
+		}
+		
+		if (count == 0) {
+			throw new LogParseException("IP addresses in a bad format or is empty");
 		}
 			
 		if (count > 1) {
@@ -97,9 +120,17 @@ public class HttpLogParser {
 		return proxies;
 	}
 	
-	protected static LocalDateTime parseRequestDateTime(String requestDateTime) {
+	protected static LocalDateTime parseRequestDateTime(String requestDateTime) throws LogParseException {
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-		LocalDateTime dateTime = LocalDateTime.parse(requestDateTime, dateFormatter);
+		LocalDateTime dateTime;
+		try {
+			dateTime = LocalDateTime.parse(requestDateTime, dateFormatter);
+
+		} catch (DateTimeParseException e) {
+			throw new LogParseException("Log Date time in a bad format");
+		} catch (Exception e) {
+			throw new LogParseException(e);
+		}
 		return dateTime;
 	}
 

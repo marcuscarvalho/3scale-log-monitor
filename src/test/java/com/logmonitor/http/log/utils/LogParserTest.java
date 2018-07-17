@@ -9,10 +9,12 @@ import java.util.regex.Pattern;
 
 import org.junit.Test;
 
+import com.logmonitor.http.log.exception.LogParseException;
+
 public class LogParserTest {
 	
 	@Test
-	public void testParseOriginAddress() {
+	public void testParseOriginAddress() throws LogParseException {
 		
 		String addresses = "194.179.0.18, 10.16.1.2, 10.129.0.10";
 		
@@ -22,7 +24,7 @@ public class LogParserTest {
 	}
 
 	@Test
-	public void testParseTwoHttpProxies() {
+	public void testParseTwoHttpProxies() throws LogParseException {
 		
 		String addresses = "194.179.0.18, 10.16.1.2, 10.129.0.10";
 		
@@ -36,7 +38,7 @@ public class LogParserTest {
 	}
 	
 	@Test
-	public void testRequestDateTime13July() {
+	public void testRequestDateTime13July() throws LogParseException {
 		String requestDateTime = "13/07/2018 16:45:01";
 		LocalDateTime parsedDateTime = HttpLogParser.parseRequestDateTime(requestDateTime);
 		

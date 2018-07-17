@@ -10,6 +10,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.logmonitor.domain.Stats;
 import com.logmonitor.http.log.HttpLog;
+import com.logmonitor.http.log.exception.LogParseException;
 import com.logmonitor.http.log.utils.HttpLogParser;
 
 /**
@@ -91,8 +92,19 @@ public class HttpLogReader {
 			if (line == null) {
 				Thread.sleep(1000L);
 			} else {
-				// TODO parse throws exception, add bad_lines + 1
-				HttpLog httpLog = HttpLogParser.parse(line);
+
+				HttpLog httpLog;
+				try {
+					httpLog = HttpLogParser.parse(line);
+				} catch (LogParseException e) {
+					// TODO: log in debug only
+					stats.setBadLines((stats.getBadLines()+1)); // TODO: add utility method
+					continue;
+				} catch (Exception e) {
+					// TODO: log in error
+					stats.setBadLines((stats.getBadLines()+1));
+					continue;
+				}
 				
 				if (httpLog.getHttpMethod().equals("GET")) {
 					stats.setGet((stats.getGet() + 1)); // TODO create an utility method
