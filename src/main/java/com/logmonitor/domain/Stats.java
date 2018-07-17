@@ -18,7 +18,7 @@ public class Stats {
 	private String mostUsedProxy;
 	@SerializedName("most_used_proxy_hits")
 	private int mostUsedProxyHits;
-	private float p95;
+	private double p95;
 	@SerializedName("bad_lines")
 	private int badLines;
 
@@ -110,11 +110,11 @@ public class Stats {
 	 * The 95 percentile request time
 	 * @return
 	 */
-	public float getP95() {
+	public double getP95() {
 		return p95;
 	}
 
-	public void setP95(float p95) {
+	public void setP95(double p95) {
 		this.p95 = p95;
 	}
 

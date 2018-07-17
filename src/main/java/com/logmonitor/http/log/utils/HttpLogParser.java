@@ -60,10 +60,10 @@ public class HttpLogParser {
 			}
 		    
 		    try {
-		    	float responseTime = Float.parseFloat(responseTimeInSeconds);
+		    	double responseTime = Double.parseDouble(responseTimeInSeconds);
 		    	httpLog.setResponseTimeInSeconds(responseTime);
 		    } catch (NumberFormatException e) {
-				throw new LogParseException("Http Response Time is not an Float value or is empty");
+				throw new LogParseException("Http Response Time is not an Double value or is empty");
 			}
 		}
 		

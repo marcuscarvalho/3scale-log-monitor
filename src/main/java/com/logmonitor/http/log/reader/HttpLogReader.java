@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
@@ -12,6 +14,7 @@ import com.logmonitor.domain.Stats;
 import com.logmonitor.http.log.HttpLog;
 import com.logmonitor.http.log.exception.LogParseException;
 import com.logmonitor.http.log.utils.HttpLogParser;
+import com.logmonitor.http.log.utils.LogMath;
 
 /**
  * 
@@ -20,6 +23,7 @@ import com.logmonitor.http.log.utils.HttpLogParser;
  */
 public class HttpLogReader {
 	
+	private static final double PERCENTILE = 95d; // 95th percentile
 	private final long logReaderDelay = 10000L; // 10 seconds
 	
 	public static void main(String[] args) throws Exception {
@@ -54,6 +58,7 @@ public class HttpLogReader {
 
 		Stats stats = new Stats();
 		Map<String, Integer> proxyHits = new HashMap<>();
+		List<Double> responseTimes = new ArrayList<>();  
 		
 		while (!shutdown) {
 			// verify if reader delay time has been passed
@@ -67,6 +72,12 @@ public class HttpLogReader {
 
 					stats.setMostUsedProxy(mostUsedProxy);
 					stats.setMostUsedProxyHits(mostUsedProxyHits);
+				}
+				
+				if (responseTimes != null && !responseTimes.isEmpty()) {
+					double[] responseTimeArray = responseTimes.stream().mapToDouble(Double::doubleValue).toArray();
+					double percentile = LogMath.calculatePercentile(responseTimeArray, PERCENTILE);
+					stats.setP95(percentile);
 				}
 				
 				// TODO: extract
@@ -128,9 +139,8 @@ public class HttpLogReader {
 					}
 				}
 				
-				// adding 1 object per line may increase the heap memory unnecessarily 
-				// removing list ojbect of logs
-//				logs.add(httpLog);
+				// Adding request response time to array list to calculate percentile
+				responseTimes.add(httpLog.getResponseTimeInSeconds());
 			}
 
 			currentTimeMillis = System.currentTimeMillis();

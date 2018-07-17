@@ -16,7 +16,7 @@ public class HttpLog {
 	private String url;
 	private String protocol;
 	private int responseStatusCode;
-	private float responseTimeInSeconds;
+	private double responseTimeInSeconds;
 
 	public String getOriginAddress() {
 		return originAddress;
@@ -74,11 +74,11 @@ public class HttpLog {
 		this.responseStatusCode = responseStatusCode;
 	}
 
-	public float getResponseTimeInSeconds() {
+	public double getResponseTimeInSeconds() {
 		return responseTimeInSeconds;
 	}
 
-	public void setResponseTimeInSeconds(float responseTimeInSeconds) {
+	public void setResponseTimeInSeconds(double responseTimeInSeconds) {
 		this.responseTimeInSeconds = responseTimeInSeconds;
 	}
 
