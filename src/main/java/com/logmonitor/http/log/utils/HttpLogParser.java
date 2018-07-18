@@ -3,6 +3,7 @@ package com.logmonitor.http.log.utils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +38,7 @@ public class HttpLogParser {
 		    String responseTimeInSeconds = matcher.group(5);
 		    
 		    String originAddress = parseOriginAddress(addresses);
-		    String[] proxies = parseProxies(addresses);
+		    LinkedList<String> proxies = parseProxies(addresses);
 		    LocalDateTime dateTime = parseRequestDateTime(requestDateTime);
 		    
 		    String[] requestInfoArray = requestInfo.split(" ");
@@ -65,6 +66,8 @@ public class HttpLogParser {
 		    } catch (NumberFormatException e) {
 				throw new LogParseException("Http Response Time is not an Double value or is empty");
 			}
+		} else {
+			throw new LogParseException("The following Log line is non-conformant: " + logLine);
 		}
 		
 		return httpLog;
@@ -90,9 +93,9 @@ public class HttpLogParser {
 		return originAddress;
 	}
 
-	protected static String[] parseProxies(String addresses) throws LogParseException {
+	protected static LinkedList<String> parseProxies(String addresses) throws LogParseException {
 		
-		String[] proxies = null;
+		LinkedList<String> proxies = null;
 		
 		final Pattern addressPattern = Pattern
 				.compile("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");
@@ -109,11 +112,11 @@ public class HttpLogParser {
 		}
 			
 		if (count > 1) {
-			proxies = new String[count - 1];
+			proxies = new LinkedList<>();
 			matcher.find(1);
 			for (int i = 1; i < count; i++) {
 				String proxy = matcher.group();
-				proxies[i - 1] = proxy;
+				proxies.add(proxy);
 				matcher.find();
 			}
 		}

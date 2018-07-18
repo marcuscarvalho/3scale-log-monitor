@@ -1,13 +1,11 @@
 package com.logmonitor.domain.alert;
 
-import java.util.Date;
-
 import com.google.gson.annotations.SerializedName;
 import com.logmonitor.domain.types.ALERT_TYPE;
 
 public class TrafficThresholdCrossedAlert {
 
-	private Date timestamp;
+	private Long timestamp;
 	@SerializedName("message_type")
 	private final String messageType = "alert";
 	@SerializedName("alert_type")
@@ -17,11 +15,11 @@ public class TrafficThresholdCrossedAlert {
 	@SerializedName("current_value")
 	private int currentValue;
 
-	public Date getTimestamp() {
+	public Long getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(Date timestamp) {
+	public void setTimestamp(Long timestamp) {
 		this.timestamp = timestamp;
 	}
 

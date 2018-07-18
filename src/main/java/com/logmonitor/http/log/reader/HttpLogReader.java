@@ -1,20 +1,27 @@
 package com.logmonitor.http.log.reader;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.logmonitor.domain.EfficientProxyChain;
 import com.logmonitor.domain.Stats;
+import com.logmonitor.domain.alert.EfficientProxyChainAlert;
 import com.logmonitor.http.log.HttpLog;
 import com.logmonitor.http.log.exception.LogParseException;
 import com.logmonitor.http.log.utils.HttpLogParser;
-import com.logmonitor.http.log.utils.LogMath;
+import com.logmonitor.http.service.impl.EfficientProxyChainServiceImpl;
+import com.logmonitor.http.service.impl.StatsServiceImpl;
+import com.logmonitor.http.service.impl.TrafficThresholdServiceImpl;
 
 /**
  * 
@@ -23,15 +30,13 @@ import com.logmonitor.http.log.utils.LogMath;
  */
 public class HttpLogReader {
 	
-	private static final double PERCENTILE = 95d; // 95th percentile
-	private final long logReaderDelay = 10000L; // 10 seconds
+	private final static long LOG_MONITOR_TIMEOUT = 10000L; // 10 seconds
 	
-	public static void main(String[] args) throws Exception {
-		HttpLogReader httpLogReader = new HttpLogReader();
-		httpLogReader.readFile("httpaccess.log", 60);
-	}
-
-	public void readFile(String filePath, int trafficThreshold) throws Exception {
+	private StatsServiceImpl statsService = new StatsServiceImpl();
+	private TrafficThresholdServiceImpl trafficService = new TrafficThresholdServiceImpl();
+	private EfficientProxyChainServiceImpl efficientProxyChainService = new EfficientProxyChainServiceImpl();
+	
+	public void readFile(String filePath, final int trafficThreshold) throws Exception {
 
 		if (filePath == null)
 			throw new IllegalArgumentException("file path cannot be null.");
@@ -52,44 +57,21 @@ public class HttpLogReader {
 		}
 
 		boolean shutdown = false;
+		boolean thresholdViolation = false;
 
 		long currentTimeMillis = System.currentTimeMillis();
 		long previousTimeMillis = currentTimeMillis;
-
-		Stats stats = new Stats();
-		Map<String, Integer> proxyHits = new HashMap<>();
-		List<Double> responseTimes = new ArrayList<>();  
+		
+		LinkedList<Long> requestTime = new LinkedList<>();
+		Map<Long, Integer> totalRequestPerTime = new HashMap<>();
 		
 		while (!shutdown) {
-			// verify if reader delay time has been passed
-			if ((currentTimeMillis - previousTimeMillis) >= logReaderDelay) {
-				System.out.println(logReaderDelay / 1000 + " seconds have passed.");
+			
+			if ((currentTimeMillis - previousTimeMillis) >= LOG_MONITOR_TIMEOUT) {
 				previousTimeMillis = currentTimeMillis;
-				
-				if (proxyHits != null && !proxyHits.isEmpty()) {
-					String mostUsedProxy = proxyHits.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
-					Integer mostUsedProxyHits = proxyHits.entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue();
-
-					stats.setMostUsedProxy(mostUsedProxy);
-					stats.setMostUsedProxyHits(mostUsedProxyHits);
-				}
-				
-				if (responseTimes != null && !responseTimes.isEmpty()) {
-					double[] responseTimeArray = responseTimes.stream().mapToDouble(Double::doubleValue).toArray();
-					double percentile = LogMath.calculatePercentile(responseTimeArray, PERCENTILE);
-					stats.setP95(percentile);
-				}
-				
-				// TODO: extract
-				Gson gson = new Gson();
-
-				// Java object to JSON, and assign to a String
-				String statsJson = gson.toJson(stats);
-
-				System.out.println(statsJson);
-				
-				stats = new Stats();
-				proxyHits = new HashMap<>();
+				Stats stats = statsService.calculateStats();
+				statsService.log(stats);
+				statsService = new StatsServiceImpl();
 			}
 
 			String line = null;
@@ -102,57 +84,40 @@ public class HttpLogReader {
 
 			if (line == null) {
 				Thread.sleep(1000L);
+				thresholdViolation = trafficService.alert(trafficThreshold, thresholdViolation, totalRequestPerTime);
+				
 			} else {
 
 				HttpLog httpLog;
 				try {
 					httpLog = HttpLogParser.parse(line);
+					statsService.populateStats(httpLog);
 				} catch (LogParseException e) {
 					// TODO: log in debug only
-					stats.setBadLines((stats.getBadLines()+1)); // TODO: add utility method
+					statsService.addBadLine();
 					continue;
 				} catch (Exception e) {
 					// TODO: log in error
-					stats.setBadLines((stats.getBadLines()+1));
+					statsService.addBadLine();
 					continue;
 				}
 				
-				if (httpLog.getHttpMethod().equals("GET")) {
-					stats.setGet((stats.getGet() + 1)); // TODO create an utility method
-				} else if (httpLog.getHttpMethod().equals("POST")) {
-					stats.setPost((stats.getPost() + 1));
-				} else {
-					
-				}
+				trafficService.calculateTraffic(requestTime, totalRequestPerTime);
 				
-				if (httpLog.getProxies() != null && httpLog.getProxies().length > 0) {
-					stats.setForwardedHits((stats.getForwardedHits() + 1));
-				}
+				LinkedList<String> proxies = httpLog.getProxies();
+				final String originAddress = httpLog.getOriginAddress();
 				
-				if (httpLog != null && httpLog.getProxies() != null) {
-					for (String proxy : httpLog.getProxies()) {
-						int proxyHitsCount = 1;
-						if (proxyHits.get(proxy) != null) {
-							proxyHitsCount += proxyHits.get(proxy);
-						}
-						proxyHits.put(proxy, proxyHitsCount);
-					}
-				}
-				
-				// Adding request response time to array list to calculate percentile
-				responseTimes.add(httpLog.getResponseTimeInSeconds());
+				// calculate inefficient proxy chain
+				efficientProxyChainService.checkEfficientProxies(proxies);
+				// inefficient proxy chain alert 
+				efficientProxyChainService.alert(proxies, originAddress);
 			}
 
 			currentTimeMillis = System.currentTimeMillis();
 		}
 
 		if (shutdown) {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			reader.close();
 		}
 	}
 

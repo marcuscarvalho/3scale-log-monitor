@@ -1,6 +1,7 @@
 package com.logmonitor.http.log;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 
 /**
  * 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 public class HttpLog {
 
 	private String originAddress;
-	private String[] proxies;
+	private LinkedList<String> proxies;
 	private LocalDateTime requestDateTime;
 	private String httpMethod;
 	private String url;
@@ -26,11 +27,11 @@ public class HttpLog {
 		this.originAddress = originAddress;
 	}
 
-	public String[] getProxies() {
+	public LinkedList<String> getProxies() {
 		return proxies;
 	}
 
-	public void setProxies(String[] proxies) {
+	public void setProxies(LinkedList<String> proxies) {
 		this.proxies = proxies;
 	}
 

@@ -1,12 +1,10 @@
 package com.logmonitor.domain;
 
-import java.util.Date;
-
 import com.google.gson.annotations.SerializedName;
 
 public class Stats {
 
-	private Date timestamp;
+	private Long timestamp;
 	@SerializedName("message_type")
 	private final String messageType = "stats";
 	private int get;
@@ -22,11 +20,15 @@ public class Stats {
 	@SerializedName("bad_lines")
 	private int badLines;
 
-	public Date getTimestamp() {
+	/**
+	 * a UNIX timestamp to be filled in with the current time when the message is output, represented as an integer.
+	 * @return
+	 */
+	public Long getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(Date timestamp) {
+	public void setTimestamp(Long timestamp) {
 		this.timestamp = timestamp;
 	}
 

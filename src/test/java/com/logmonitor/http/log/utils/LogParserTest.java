@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,13 +29,13 @@ public class LogParserTest {
 		
 		String addresses = "194.179.0.18, 10.16.1.2, 10.129.0.10";
 		
-		String[] requestProxies = HttpLogParser.parseProxies(addresses);
+		LinkedList<String> requestProxies = HttpLogParser.parseProxies(addresses);
 		
-		String[] proxies = new String[2];
-		proxies[0] = "10.16.1.2";
-		proxies[1] = "10.129.0.10";
+		LinkedList<String> proxies = new LinkedList<>();
+		proxies.add("10.16.1.2");
+		proxies.add("10.129.0.10");
 		
-		assertArrayEquals(proxies, requestProxies);
+		assertEquals(proxies, requestProxies);
 	}
 	
 	@Test

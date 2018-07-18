@@ -1,46 +1,59 @@
 package com.logmonitor.domain.alert;
 
-import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.google.gson.annotations.SerializedName;
 
 public class EfficientProxyChainAlert {
 
-	private Date timestamp;
-	private final String messageType = "alert";
-	private final String alertType = "ok";
-	private String[] proxyChain;
-	private String[] inefficientAddresses;
-	private String[] efficient_proxy_chains;
+	private Long timestamp;
 
-	public Date getTimestamp() {
+	@SerializedName("message_type")
+	private final String messageType = "alert";
+
+	@SerializedName("alert_type")
+	private final String alertType = "inefficient_proxy_chain";
+
+	@SerializedName("proxy_chain")
+	private LinkedList<String> proxyChain;
+
+	@SerializedName("inefficient_addresses")
+	private List<String> inefficientAddresses;
+
+	@SerializedName("efficient_proxy_chains")
+	private List<List<String>> efficientProxyChains;
+
+	public Long getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(Date timestamp) {
+	public void setTimestamp(Long timestamp) {
 		this.timestamp = timestamp;
 	}
 
-	public String[] getProxyChain() {
+	public LinkedList<String> getProxyChain() {
 		return proxyChain;
 	}
 
-	public void setProxyChain(String[] proxyChain) {
+	public void setProxyChain(LinkedList<String> proxyChain) {
 		this.proxyChain = proxyChain;
 	}
 
-	public String[] getInefficientAddresses() {
+	public List<String> getInefficientAddresses() {
 		return inefficientAddresses;
 	}
 
-	public void setInefficientAddresses(String[] inefficientAddresses) {
+	public void setInefficientAddresses(List<String> inefficientAddresses) {
 		this.inefficientAddresses = inefficientAddresses;
 	}
 
-	public String[] getEfficient_proxy_chains() {
-		return efficient_proxy_chains;
+	public List<List<String>> getEfficientProxyChains() {
+		return efficientProxyChains;
 	}
 
-	public void setEfficient_proxy_chains(String[] efficient_proxy_chains) {
-		this.efficient_proxy_chains = efficient_proxy_chains;
+	public void setEfficientProxyChains(List<List<String>> efficientProxyChains) {
+		this.efficientProxyChains = efficientProxyChains;
 	}
 
 	public String getMessageType() {
