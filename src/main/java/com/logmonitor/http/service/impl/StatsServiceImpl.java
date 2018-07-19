@@ -18,8 +18,8 @@ public class StatsServiceImpl {
 	private Stats stats = new Stats();
 	private Map<String, Integer> proxyHits = new HashMap<>();
 	private List<Double> responseTimes = new ArrayList<>();
-
-	public void log(Stats stats) {
+	
+	public void printStats() {
 		// Java object to JSON, and assign to a String
 		String statsJson = gson.toJson(stats);
 
@@ -51,16 +51,13 @@ public class StatsServiceImpl {
 
 		// Adding request response time to array list to calculate percentile
 		responseTimes.add(httpLog.getResponseTimeInSeconds());
+		stats.setTimestamp(System.currentTimeMillis());
 	}
 
-	public Stats calculateStats() {
-
+	public void calculateStats() {
 		stats.setHits((stats.getGet() + stats.getPost()));
 		calculateMostUsedProxyHits();
 		calculatePercentile();
-		stats.setTimestamp(System.currentTimeMillis());
-
-		return stats;
 	}
 
 	public void addBadLine() {

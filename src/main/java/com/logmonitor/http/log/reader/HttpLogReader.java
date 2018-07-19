@@ -1,21 +1,13 @@
 package com.logmonitor.http.log.reader;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.logmonitor.domain.EfficientProxyChain;
-import com.logmonitor.domain.Stats;
-import com.logmonitor.domain.alert.EfficientProxyChainAlert;
 import com.logmonitor.http.log.HttpLog;
 import com.logmonitor.http.log.exception.LogParseException;
 import com.logmonitor.http.log.utils.HttpLogParser;
@@ -55,7 +47,15 @@ public class HttpLogReader {
 			// TODO if seek pos is less than 0 or if an I/O error occurs.
 			e.printStackTrace();
 		}
-
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				// TODO: LOG debug aborting program
+				statsService.printStats();
+			}
+		});
+		
 		boolean shutdown = false;
 		boolean thresholdViolation = false;
 
@@ -69,8 +69,8 @@ public class HttpLogReader {
 			
 			if ((currentTimeMillis - previousTimeMillis) >= LOG_MONITOR_TIMEOUT) {
 				previousTimeMillis = currentTimeMillis;
-				Stats stats = statsService.calculateStats();
-				statsService.log(stats);
+				statsService.calculateStats();
+				statsService.printStats();
 				statsService = new StatsServiceImpl();
 			}
 
@@ -115,7 +115,7 @@ public class HttpLogReader {
 
 			currentTimeMillis = System.currentTimeMillis();
 		}
-
+		
 		if (shutdown) {
 			reader.close();
 		}
