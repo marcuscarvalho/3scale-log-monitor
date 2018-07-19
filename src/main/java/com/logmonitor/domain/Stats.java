@@ -1,5 +1,7 @@
 package com.logmonitor.domain;
 
+import java.util.List;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Stats {
@@ -13,7 +15,7 @@ public class Stats {
 	@SerializedName("forwarded_hits")
 	private int forwardedHits;
 	@SerializedName("most_used_proxy")
-	private String mostUsedProxy;
+	private List<String> mostUsedProxy;
 	@SerializedName("most_used_proxy_hits")
 	private int mostUsedProxyHits;
 	private double p95;
@@ -88,11 +90,11 @@ public class Stats {
 	 * The proxy that forwarded most requests
 	 * @return
 	 */
-	public String getMostUsedProxy() {
+	public List<String> getMostUsedProxy() {
 		return mostUsedProxy;
 	}
 
-	public void setMostUsedProxy(String mostUsedProxy) {
+	public void setMostUsedProxy(List<String> mostUsedProxy) {
 		this.mostUsedProxy = mostUsedProxy;
 	}
 

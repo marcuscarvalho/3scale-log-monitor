@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.google.gson.Gson;
 import com.logmonitor.domain.Stats;
@@ -19,6 +20,14 @@ public class StatsServiceImpl {
 	private Map<String, Integer> proxyHits = new HashMap<>();
 	private List<Double> responseTimes = new ArrayList<>();
 	
+	public StatsServiceImpl() {
+		
+	}
+	
+	public StatsServiceImpl(Map<String, Integer> proxyHits) {
+		this.proxyHits = proxyHits;
+	}
+
 	public void printStats() {
 		// Java object to JSON, and assign to a String
 		String statsJson = gson.toJson(stats);
@@ -64,16 +73,25 @@ public class StatsServiceImpl {
 		stats.setBadLines((stats.getBadLines() + 1));
 	}
 
-	private void calculateMostUsedProxyHits() {
+	protected void calculateMostUsedProxyHits() {
 
 		if (proxyHits != null && !proxyHits.isEmpty()) {
-			String mostUsedProxy = proxyHits.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
-			Integer mostUsedProxyHits = proxyHits.entrySet().stream().max(Map.Entry.comparingByValue()).get()
-					.getValue();
-
-			stats.setMostUsedProxy(mostUsedProxy);
-			stats.setMostUsedProxyHits(mostUsedProxyHits);
+			List<String> mostUsedProxies = new ArrayList<>();
+			Integer maxValue = proxyHits.entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue();
+			
+			for (Entry<String, Integer> entry : proxyHits.entrySet()) {
+				if (maxValue.equals(entry.getValue())) {
+					mostUsedProxies.add(entry.getKey());
+				}
+			}
+			
+			stats.setMostUsedProxy(mostUsedProxies);
+			stats.setMostUsedProxyHits(maxValue);
 		}
+	}
+	
+	public Stats getStats() {
+		return stats;
 	}
 
 	private void calculatePercentile() {
