@@ -82,9 +82,11 @@ public class HttpLogReader {
 				e.printStackTrace();
 			}
 
+			thresholdViolation = trafficService.alert(trafficThreshold, thresholdViolation, totalRequestPerTime);
+			
 			if (line == null) {
 				Thread.sleep(1000L);
-				thresholdViolation = trafficService.alert(trafficThreshold, thresholdViolation, totalRequestPerTime);
+				trafficService.updateTraffic(requestTime, totalRequestPerTime);
 				
 			} else {
 

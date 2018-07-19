@@ -11,14 +11,9 @@ public class TrafficThresholdServiceImpl {
 
 	private final static int PAST_MINUTE_IN_SECONDS = 60;
 	private Gson gson = new Gson();
-
+	
 	public void calculateTraffic(LinkedList<Long> requestTime, Map<Long, Integer> totalRequestPerTime) {
-		long currentTimeInSeconds = System.currentTimeMillis() / 1000;
-
-		if (!requestTime.isEmpty() && (currentTimeInSeconds - requestTime.getFirst()) >= PAST_MINUTE_IN_SECONDS) {
-			Long removedKey = requestTime.pollFirst();
-			totalRequestPerTime.remove(removedKey);
-		}
+		long currentTimeInSeconds = updateTraffic(requestTime, totalRequestPerTime);
 
 		if (!requestTime.contains(currentTimeInSeconds)) {
 			requestTime.add(currentTimeInSeconds);
@@ -26,6 +21,22 @@ public class TrafficThresholdServiceImpl {
 		} else {
 			totalRequestPerTime.put(currentTimeInSeconds, (totalRequestPerTime.get(currentTimeInSeconds) + 1));
 		}
+	}
+
+	public long updateTraffic(LinkedList<Long> requestTime, Map<Long, Integer> totalRequestPerTime) {
+		long currentTimeInSeconds = System.currentTimeMillis() / 1000;
+
+		if (!requestTime.isEmpty()) {
+			for (int i = 0; i < requestTime.size(); i++) {
+				if ((currentTimeInSeconds - requestTime.getFirst()) >= PAST_MINUTE_IN_SECONDS) {
+					Long removedKey = requestTime.pollFirst();
+					totalRequestPerTime.remove(removedKey);
+				} else {
+					break;
+				}
+			}
+		}
+		return currentTimeInSeconds;
 	}
 
 	public boolean alert(final int trafficThreshold, boolean thresholdViolation,
