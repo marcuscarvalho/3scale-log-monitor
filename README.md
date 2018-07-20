@@ -11,27 +11,40 @@ Setup
 -------------------------
 
 * **Prerequisites:**
+
     * Install the latest version of [Java](https://java.com) and [Maven](https://maven.apache.org/download.html).
     * You may need to set your `JAVA_HOME` to execute java from command line.
+    
+# Clone project into your local repository
+
+```bash
+> git clone https://github.com/marcuscarvalho/3scale-log-monitor.git
+```
+
+Move to the cloned directory:
+```bash
+mark52:starks$> cd 3scale-log-monitor
+mark52:3scale-log-monitor starks$>
+```
 
 # Compile and run
 
 To compile with tests, run:
 
 ```bash
-mvn compile install
+mark52:3scale-log-monitor starks$> mvn compile install
 ```
 
 To skip tests, run instead:
 
 ```bash
-mvn compile install -Dmaven.test.skip=true
+mark52:3scale-log-monitor starks$> mvn compile install -Dmaven.test.skip=true
 ```
 
 To execute the app, run:
 
 ```bash
-java -cp <app_path>/target/3scale-logmonitor-1.0.0-SNAPSHOT-jar-with-dependencies.jar com.logmonitor.LogMonitor <absolute_path_to_http_access_log> <threshold>
+mark52:3scale-log-monitor starks$> java -cp target/3scale-logmonitor-1.0.0-SNAPSHOT-jar-with-dependencies.jar com.logmonitor.LogMonitor <absolute_path_to_http_access_log> <threshold>
 ```
     
 It should start logging within the console a monitor stats after 10 seconds e.g.:
