@@ -1,29 +1,44 @@
 # Red Hat - 3scale HTTP Log Monitor
 
+
+Using the Log Monitor
+==============================================================
+
+Setup
+-----
+
 ## Command-line Instructions
 -------------------------
 
 * **Prerequisites:**
     * Install the latest version of [Java](https://java.com) and [Maven](https://maven.apache.org/download.html).
     * You may need to set your `JAVA_HOME` to execute java from command line.
-    
-    ```bash
-cd java-docs-samples/storage/xml-api/cmdline-sample
 
 # Compile and run
 
 To compile with tests, run:
+
+```bash
 mvn compile install
+```
 
 To skip tests, run instead:
+
+```bash
 mvn compile install -Dmaven.test.skip=true
+```
 
 To execute the app, run:
+
+```bash
 java -cp <app_path>/target/3scale-logmonitor-1.0.0-SNAPSHOT-jar-with-dependencies.jar com.logmonitor.LogMonitor <absolute_path_to_http_access_log> <threshold>
+```
     
 It should start logging within the console a monitor stats after 10 seconds e.g.:
-{"timestamp":1532074236813,"message_type":"stats","get":0,"post":0,"hits":0,"forwarded_hits":0,"most_used_proxy_hits":0,"p95":0.0,"bad_lines":0}
 
+```bash
+{"timestamp":1532074236813,"message_type":"stats","get":0,"post":0,"hits":0,"forwarded_hits":0,"most_used_proxy_hits":0,"p95":0.0,"bad_lines":0}
+```
 
 ## Rules
 
