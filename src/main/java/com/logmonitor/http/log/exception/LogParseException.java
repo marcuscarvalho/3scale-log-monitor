@@ -1,5 +1,11 @@
 package com.logmonitor.http.log.exception;
 
+/**
+ * Log Parse Exception 
+ * 
+ * @author Marcus Carvalho
+ *
+ */
 public class LogParseException extends Exception {
 
 	private static final long serialVersionUID = 1L;

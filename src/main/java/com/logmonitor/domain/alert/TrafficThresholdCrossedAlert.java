@@ -3,6 +3,13 @@ package com.logmonitor.domain.alert;
 import com.google.gson.annotations.SerializedName;
 import com.logmonitor.domain.types.ALERT_TYPE;
 
+/**
+ * This class represents the traffic 
+ * threshold alerts.
+ * 
+ * @author Marcus Carvalho
+ *
+ */
 public class TrafficThresholdCrossedAlert {
 
 	private Long timestamp;

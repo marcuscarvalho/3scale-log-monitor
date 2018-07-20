@@ -1,19 +1,29 @@
 package com.logmonitor.http.service.impl;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 import com.google.gson.Gson;
 import com.logmonitor.domain.alert.TrafficThresholdCrossedAlert;
 import com.logmonitor.domain.types.ALERT_TYPE;
+import com.logmonitor.http.service.TrafficThresholdService;
 
-public class TrafficThresholdServiceImpl {
+public class TrafficThresholdServiceImpl implements TrafficThresholdService {
 
 	private final static int PAST_MINUTE_IN_SECONDS = 60;
-	private Gson gson = new Gson();
+	private LinkedList<Long> requestTime = new LinkedList<>();
+	private Map<Long, Integer> totalRequestPerTime = new HashMap<>();
+	private boolean thresholdViolation = false;
 	
-	public void calculateTraffic(LinkedList<Long> requestTime, Map<Long, Integer> totalRequestPerTime) {
-		long currentTimeInSeconds = updateTraffic(requestTime, totalRequestPerTime);
+	@Override
+	public int countRequests() {
+		return totalRequestPerTime.values().stream().mapToInt(Number::intValue).sum();
+	}
+	
+	@Override
+	public void calculateTraffic() {
+		long currentTimeInSeconds = updateTraffic();
 
 		if (!requestTime.contains(currentTimeInSeconds)) {
 			requestTime.add(currentTimeInSeconds);
@@ -23,7 +33,8 @@ public class TrafficThresholdServiceImpl {
 		}
 	}
 
-	public long updateTraffic(LinkedList<Long> requestTime, Map<Long, Integer> totalRequestPerTime) {
+	@Override
+	public long updateTraffic() {
 		long currentTimeInSeconds = System.currentTimeMillis() / 1000;
 
 		if (!requestTime.isEmpty()) {
@@ -39,8 +50,8 @@ public class TrafficThresholdServiceImpl {
 		return currentTimeInSeconds;
 	}
 
-	public boolean alert(final int trafficThreshold, boolean thresholdViolation,
-			Map<Long, Integer> totalRequestPerTime) {
+	@Override
+	public void alert(final int trafficThreshold, Gson gson) {
 
 		int totalTrafficPastMinute = totalRequestPerTime.values().stream().mapToInt(Number::intValue).sum();
 
@@ -54,10 +65,10 @@ public class TrafficThresholdServiceImpl {
 			trafficThresholdCrossedAlert.setCurrentValue(totalTrafficPastMinute);
 
 			// Java object to JSON, and assign to a String
-			String trafficThresholdAlertJson = gson.toJson(trafficThresholdCrossedAlert);
+			String json = gson.toJson(trafficThresholdCrossedAlert);
 
 			// print traffic threshold in json format to terminal
-			System.out.println(trafficThresholdAlertJson);
+			System.out.println(json);
 
 		} else if (thresholdViolation && totalTrafficPastMinute < trafficThreshold) {
 
@@ -68,14 +79,13 @@ public class TrafficThresholdServiceImpl {
 			trafficThresholdCrossedAlert.setCurrentValue(totalTrafficPastMinute);
 
 			// Java object to JSON, and assign to a String
-			String trafficThresholdAlertJson = gson.toJson(trafficThresholdCrossedAlert);
+			String json = gson.toJson(trafficThresholdCrossedAlert);
 
 			// print traffic threshold in json format to terminal
-			System.out.println(trafficThresholdAlertJson);
+			System.out.println(json);
 
 			thresholdViolation = false;
 		}
-		return thresholdViolation;
 	}
 
 }

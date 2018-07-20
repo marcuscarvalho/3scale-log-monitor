@@ -2,6 +2,8 @@ package com.logmonitor.http.server;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 public class HttpServerTest {
@@ -12,7 +14,11 @@ public class HttpServerTest {
 		FileWriter fileWriter = new FileWriter("httpaccess.log");
 		PrintWriter out = new PrintWriter(new BufferedWriter(fileWriter));
 		
-		String getProxiedRequest = "194.179.0.18, 10.16.1.2, 10.129.0.10 [13/02/2016 16:45:01] \"GET /some/path?param1=x&param2=y HTTP/1.1\" 200 0.006065388";
+		InputStream in = System.in;
+		InputStreamReader inputStreamReader = new InputStreamReader(in);
+		System.out.println(inputStreamReader.read());
+		
+		String getProxiedRequest = "194.179.0.18, 10.16.1.2, 10.129.0.10 [13////02/2016 16:45:01] \"GET /some/path?param1=x&param2=y HTTP/1.1\" 200 0.006065388";
 		String getProxiedRequest2 = "194.179.0.18, 10.15.100.200, 10.129.0.10 [13/02/2016 16:45:01] \"GET /some/path?param1=x&param2=y HTTP/1.1\" 200 0.009065388";
 		String postSimpleRequest = "213.1.20.7 [13/02/2016 16:45:02] \"POST /some/other/path HTTP/1.0\" 201 0.012901348";
 		

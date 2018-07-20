@@ -10,14 +10,19 @@ import java.util.regex.Pattern;
 import com.logmonitor.http.log.HttpLog;
 import com.logmonitor.http.log.exception.LogParseException;
 
+/**
+ * Parse an HTTP Access Log using regex.
+ * 
+ * @author Marcus Carvalho
+ *
+ */
 public class HttpLogParser {
 	
 	/**
 	 * Parse log lines from HTTP Server access logs.
-	 * E.g.
-	 * 194.179.0.18, 10.16.1.2, 10.129.0.10 [13/02/2016 16:45:01] "GET /some/path?param1=x&param2=y HTTP/1.1" 200 0.006065388
+	 * E.g. 194.179.0.18, 10.16.1.2, 10.129.0.10 [13/02/2016 16:45:01] "GET /some/path?param1=x&param2=y HTTP/1.1" 200 0.006065388
 	 * 
-	 * @param logLine
+	 * @param logLine Http server access log line 
 	 * @return HttpLog Log line parsed to an object of HttpLog
 	 * @throws LogParseException 
 	 */
@@ -25,9 +30,8 @@ public class HttpLogParser {
 		
 		HttpLog httpLog = new HttpLog();
 		
-		final String regex = "([(\\d\\.\\,\\s*)]+)[\\x20-\\x2F]+\\[(.*?)\\][\\x20-\\x2F]+\"(.*?)\"[\\x20-\\x2F]+(\\d+)[\\x20-\\x2F]+(\\d+\\.\\d+)$";
-
-		final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+		final Pattern pattern = getRegex();
+		
 		final Matcher matcher = pattern.matcher(logLine);
 
 		if (matcher.find()) {
@@ -53,24 +57,43 @@ public class HttpLogParser {
 		    httpLog.setUrl(url);
 		    httpLog.setProtocol(protocol);
 		    
-		    try {
-		    	int statusCode = Integer.parseInt(responseStatusCode);
-		    	httpLog.setResponseStatusCode(statusCode);
-		    } catch (NumberFormatException e) {
-				throw new LogParseException("Http Response Status Code is not an Integer value or is empty");
-			}
+		    parseStatusCode(httpLog, responseStatusCode);
+		    parseResponseTime(httpLog, responseTimeInSeconds);
 		    
-		    try {
-		    	double responseTime = Double.parseDouble(responseTimeInSeconds);
-		    	httpLog.setResponseTimeInSeconds(responseTime);
-		    } catch (NumberFormatException e) {
-				throw new LogParseException("Http Response Time is not an Double value or is empty");
-			}
 		} else {
 			throw new LogParseException("The following Log line is non-conformant: " + logLine);
 		}
 		
 		return httpLog;
+	}
+
+	protected static void parseResponseTime(HttpLog httpLog, String responseTimeInSeconds) throws LogParseException {
+		try {
+			double responseTime = Double.parseDouble(responseTimeInSeconds);
+			httpLog.setResponseTimeInSeconds(responseTime);
+		} catch (NumberFormatException e) {
+			throw new LogParseException("Http Response Time is not an Double value or is empty");
+		} catch (Exception e) {
+			throw new LogParseException("Something went wrong", e);
+		}
+	}
+
+	protected static void parseStatusCode(HttpLog httpLog, String responseStatusCode) throws LogParseException {
+		try {
+			int statusCode = Integer.parseInt(responseStatusCode);
+			httpLog.setResponseStatusCode(statusCode);
+		} catch (NumberFormatException e) {
+			throw new LogParseException("Http Response Status Code is not an Integer value or is empty");
+		} catch (Exception e) {
+			throw new LogParseException("Something went wrong", e);
+		}
+	}
+
+	protected static Pattern getRegex() {
+		final String regex = "([(\\d\\.\\,\\s*)]+)[\\x20-\\x2F]+\\[(.*?)\\][\\x20-\\x2F]+\"(.*?)\"[\\x20-\\x2F]+(\\d+)[\\x20-\\x2F]+(\\d+\\.\\d+)$";
+
+		final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+		return pattern;
 	}
 
 	protected static String parseOriginAddress(String addresses) throws LogParseException {

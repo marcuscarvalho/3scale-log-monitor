@@ -9,37 +9,37 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.logmonitor.domain.EfficientProxyChain;
 import com.logmonitor.domain.alert.EfficientProxyChainAlert;
+import com.logmonitor.http.service.EfficientProxyChainService;
 
-public class EfficientProxyChainServiceImpl {
-	
-	private Map<String, EfficientProxyChain> proxyChains = new HashMap<>();
+public class EfficientProxyChainServiceImpl implements EfficientProxyChainService {
 
-	public void alert(LinkedList<String> proxies, final String originAddress) {
+	private LinkedList<String> proxyChain = new LinkedList<>();
+	private List<String> inefficientAddress = new LinkedList<>();
+	private List<List<String>> efficientProxyChain = new ArrayList<>();
+	private Map<String, EfficientProxyChain> proxyChainMap = new HashMap<>();
+
+	@Override
+	public void alert(final LinkedList<String> proxies, final String originAddress, Gson gson) {
 
 		if (proxies == null || proxies.isEmpty()) {
 			return;
 		}
 
-		LinkedList<String> proxyUnderTest = new LinkedList<>(proxies);
+		LinkedList<String> proxiesCopy = new LinkedList<>(proxies);
 
-		LinkedList<String> proxyChain = new LinkedList<>();
-		List<String> inefficientAddress = new LinkedList<>();
-		List<List<String>> efficientProxyChain = new ArrayList<>();
-
-		for (int j = 0; j < proxyUnderTest.size(); j++) {
-			if (proxyChains.containsKey(proxyUnderTest.get(j))) {
-				String key = proxyUnderTest.get(j);
-				EfficientProxyChain pChain = proxyChains.get(key);
-				LinkedList<String> existingProxyChain = pChain.getProxySize();
-				if (existingProxyChain.size() < (proxyUnderTest.size() - (j + 1))) {
+		for (int j = 0; j < proxiesCopy.size(); j++) {
+			if (proxyChainMap.containsKey(proxiesCopy.get(j))) {
+				String key = proxiesCopy.get(j);
+				EfficientProxyChain pChain = proxyChainMap.get(key);
+				if (pChain.getPreviousSize() < (proxiesCopy.size() - (j + 1))) {
 					// setting hole proxy chain
 					proxyChain.push(originAddress);
-					proxyChain.addAll(proxyUnderTest);
+					proxyChain.addAll(proxiesCopy);
 
 					// setting inefficient address
 					inefficientAddress.add(key);
 
-					for (String efficientProxy : pChain.getEfficientProxies()) {
+					for (String efficientProxy : pChain.getProxies()) {
 						List<String> efficientProxies = new ArrayList<>();
 
 						for (String string : proxyChain) {
@@ -56,44 +56,62 @@ public class EfficientProxyChainServiceImpl {
 			}
 		}
 
-		if (!inefficientAddress.isEmpty()) {
-			EfficientProxyChainAlert efficientProxyChainAlert = new EfficientProxyChainAlert();
-			efficientProxyChainAlert.setTimestamp(System.currentTimeMillis());
-			efficientProxyChainAlert.setProxyChain(proxyChain);
-			efficientProxyChainAlert.setInefficientAddresses(inefficientAddress);
-			efficientProxyChainAlert.setEfficientProxyChains(efficientProxyChain);
-
-			Gson gson = new Gson();
-			String json = gson.toJson(efficientProxyChainAlert);
-			System.out.println(json);
-		}
+		printJson(gson, proxyChain, inefficientAddress, efficientProxyChain);
 	}
 
-	public void checkEfficientProxies(LinkedList<String> proxies) {
-
+	@Override
+	public void findEfficientProxies(final LinkedList<String> proxies) {
 		if (proxies == null || proxies.isEmpty()) {
 			return;
 		}
 
-		LinkedList<String> copyObj = new LinkedList<>(proxies);
+		LinkedList<String> safeCopy = new LinkedList<>(proxies);
+		for (int j = 0; j < safeCopy.size(); j++) {
+			populate(safeCopy);
+		}
+	}
 
-		for (int j = 0; j < copyObj.size(); j++) {
-			String pop = copyObj.pop();
-			if (proxyChains.get(pop) == null) {
-				EfficientProxyChain efficientProxyChain = new EfficientProxyChain(new LinkedList<>(copyObj),
-						new LinkedList<>(copyObj));
-				proxyChains.put(pop, efficientProxyChain);
+	protected void populate(final LinkedList<String> proxies) {
+		String proxy = proxies.pop();
+		int currentSize = new LinkedList<>(proxies).size();
+		
+		if (proxyChainMap.get(proxy) == null) {
+			EfficientProxyChain proxyChain = new EfficientProxyChain(currentSize, new LinkedList<>(proxies));
+			proxyChainMap.put(proxy, proxyChain);
 
-			} else if (proxyChains.get(pop).getProxySize().size() > copyObj.size()) {
-				EfficientProxyChain efficientProxyChain = new EfficientProxyChain(new LinkedList<>(copyObj),
-						new LinkedList<>(copyObj));
-				proxyChains.put(pop, efficientProxyChain); // efficient proxy chain
+		} else if (proxyChainMap.get(proxy).getPreviousSize() > proxies.size()) {
+			EfficientProxyChain efficientProxyChain = new EfficientProxyChain(currentSize, new LinkedList<>(proxies));
+			proxyChainMap.put(proxy, efficientProxyChain); // efficient proxy chain observed
 
-			} else if (proxyChains.get(pop).getProxySize().size() == copyObj.size()) {
-				EfficientProxyChain current = proxyChains.get(pop);
-				current.getEfficientProxies().addAll(copyObj); // another efficient proxy chain same size
+		} else if (proxyChainMap.get(proxy).getPreviousSize() == proxies.size()) {
+			proxyChainMap.get(proxy).getProxies().addAll(proxies); // another efficient proxy chain with the same size
+		}
+	}
 
-			}
+	
+	public LinkedList<String> getProxyChain() {
+		return proxyChain;
+	}
+
+	public List<String> getInefficientAddress() {
+		return inefficientAddress;
+	}
+
+	public List<List<String>> getEfficientProxyChain() {
+		return efficientProxyChain;
+	}
+
+	private void printJson(Gson gson, LinkedList<String> currentChain, List<String> inefficientAddress,
+			List<List<String>> efficientChain) {
+		if (!inefficientAddress.isEmpty()) {
+			EfficientProxyChainAlert efficientProxyChainAlert = new EfficientProxyChainAlert();
+			efficientProxyChainAlert.setTimestamp(System.currentTimeMillis());
+			efficientProxyChainAlert.setProxyChain(currentChain);
+			efficientProxyChainAlert.setInefficientAddresses(inefficientAddress);
+			efficientProxyChainAlert.setEfficientProxyChains(efficientChain);
+
+			String json = gson.toJson(efficientProxyChainAlert);
+			System.out.println(json);
 		}
 	}
 

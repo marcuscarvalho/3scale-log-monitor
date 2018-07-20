@@ -4,6 +4,12 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * This class represents the status of http server
+ * 
+ * @author Marcus Carvalho
+ *
+ */
 public class Stats {
 
 	private Long timestamp;

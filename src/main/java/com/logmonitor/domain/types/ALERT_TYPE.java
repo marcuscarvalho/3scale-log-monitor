@@ -2,6 +2,12 @@ package com.logmonitor.domain.types;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Alert Type
+ * 
+ * @author Marcus Carvalho
+ *
+ */
 public enum ALERT_TYPE {
 	
 	@SerializedName("traffic_above_threshold")

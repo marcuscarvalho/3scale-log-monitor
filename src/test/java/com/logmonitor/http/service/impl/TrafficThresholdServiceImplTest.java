@@ -1,8 +1,6 @@
 package com.logmonitor.http.service.impl;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -10,11 +8,9 @@ public class TrafficThresholdServiceImplTest {
 
 	 @Test
 	public void test() throws InterruptedException {
-		LinkedList<Long> requestTime = new LinkedList<>();
-		Map<Long, Integer> totalRequestPerTime = new HashMap<>();
-		TrafficThresholdServiceImpl trafficThresholdServiceImpl = new TrafficThresholdServiceImpl();
+		TrafficThresholdServiceImpl impl = new TrafficThresholdServiceImpl();
 
-		int keepAlive = 125;
+		int keepAlive = 73;
 		int currentTimeInSeconds = 0;
 		
 		while (currentTimeInSeconds < keepAlive) {
@@ -22,45 +18,43 @@ public class TrafficThresholdServiceImplTest {
 			currentTimeInSeconds++;
 			switch (currentTimeInSeconds) {
 			case 5:
-				for (int i = 1; i <= 1; i++) {
-					trafficThresholdServiceImpl.calculateTraffic(requestTime, totalRequestPerTime);
+				for (int i = 1; i <= 1; i++) { 
+					impl.calculateTraffic();
 				}
-				System.out.println("5 segundos total request 1: " + totalRequestPerTime);
+				System.out.println("5 seconds passed - total requests: " + impl.countRequests());
+				assertEquals(1, impl.countRequests());
 				break;
 			case 10:
 				for (int i = 1; i <= 80; i++) {
-					trafficThresholdServiceImpl.calculateTraffic(requestTime, totalRequestPerTime);
+					impl.calculateTraffic();
 				}
-				System.out.println("10 segundos total request 81: " + totalRequestPerTime);
+				System.out.println("10 seconds passed - total requests: " + impl.countRequests());
+				assertEquals(81, impl.countRequests());
 				break;
 			case 15:
 				for (int i = 1; i <= 5; i++) {
-					trafficThresholdServiceImpl.calculateTraffic(requestTime, totalRequestPerTime);
+					impl.calculateTraffic();
 				}
-				System.out.println("15 segundos total request 86: " + totalRequestPerTime);
+				System.out.println("15 seconds passed - total requests: " + impl.countRequests());
+				assertEquals(86, impl.countRequests());
 				break;
 			case 60:
 				for (int i = 1; i <= 1; i++) {
-					trafficThresholdServiceImpl.calculateTraffic(requestTime, totalRequestPerTime);
+					impl.calculateTraffic();
 				}
-				System.out.println("60 segundos total request 87: " + totalRequestPerTime);
+				System.out.println("60 seconds passed - total requests: " + impl.countRequests());
+				assertEquals(87, impl.countRequests());
 				break;
 			case 61:
-				trafficThresholdServiceImpl.updateTraffic(requestTime, totalRequestPerTime);
-				System.out.println("61 segundos total request 87: " + totalRequestPerTime);
+				impl.updateTraffic();
+				System.out.println("61 seconds passed - total requests: " + impl.countRequests());
+				assertEquals(87, impl.countRequests());
 
 				break;
 			case 71:
-				trafficThresholdServiceImpl.updateTraffic(requestTime, totalRequestPerTime);
-				System.out.println("71 segundos total request 6: " + totalRequestPerTime);
-				break;
-			case 120:
-				trafficThresholdServiceImpl.updateTraffic(requestTime, totalRequestPerTime);
-				System.out.println("120 segundos total request 1: " + totalRequestPerTime);
-				break;
-			case 121:
-				trafficThresholdServiceImpl.updateTraffic(requestTime, totalRequestPerTime);
-				System.out.println("120 segundos total request 0: " + totalRequestPerTime);
+				impl.updateTraffic();
+				System.out.println("71 seconds passed - total requests: " + impl.countRequests());
+				assertEquals(6, impl.countRequests());
 				break;
 
 			default:
