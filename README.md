@@ -1,10 +1,7 @@
 # Red Hat - 3scale HTTP Log Monitor
 
-Setup
------
-
-Command-line Instructions
--------------------------
+Setup - Command-line Instructions
+---------------------------------
 
 * Install the latest version of [Java](https://java.com) and [Maven](https://maven.apache.org/download.html).
 * You may need to set your `JAVA_HOME` to execute java from command line.
