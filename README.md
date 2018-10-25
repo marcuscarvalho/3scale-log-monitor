@@ -22,7 +22,7 @@ mark52:starks$> cd 3scale-log-monitor
 mark52:3scale-log-monitor starks$>
 ```
 
-Compile and run
+# Compile and run
 
 To compile with tests, run:
 
