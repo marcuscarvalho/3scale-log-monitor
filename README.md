@@ -1,33 +1,28 @@
 # Red Hat - 3scale HTTP Log Monitor
 
-
-Using the Log Monitor
-==============================================================
-
 Setup
 -----
 
-## Command-line Instructions
+Command-line Instructions
 -------------------------
 
-* **Prerequisites:**
-
-    * Install the latest version of [Java](https://java.com) and [Maven](https://maven.apache.org/download.html).
-    * You may need to set your `JAVA_HOME` to execute java from command line.
+* Install the latest version of [Java](https://java.com) and [Maven](https://maven.apache.org/download.html).
+* You may need to set your `JAVA_HOME` to execute java from command line.
     
-# Clone project into your local repository
+Clone project into your local repository
 
 ```bash
 > git clone https://github.com/marcuscarvalho/3scale-log-monitor.git
 ```
 
-Move to the cloned directory:
+Move to the repository folder
+
 ```bash
 mark52:starks$> cd 3scale-log-monitor
 mark52:3scale-log-monitor starks$>
 ```
 
-# Compile and run
+Compile and run
 
 To compile with tests, run:
 
